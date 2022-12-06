@@ -11,7 +11,7 @@
       name="OpenStreetMap"
       :max-zoom="15"
     />
-    <l-marker :lat-lng="coordinates" ref="marker1">
+    <l-marker :lat-lng="coordinates" ref="marker1" v-if="mostraretiqueta">
       <l-popup>
         Usted está Aquí
       </l-popup>
@@ -25,6 +25,7 @@
 import { defineComponent } from 'vue'
 import "leaflet/dist/leaflet.css"
 import { LMap, LTileLayer,LMarker, LPopup} from "@vue-leaflet/vue-leaflet";
+import { useQuasar } from 'quasar'
 
 export default defineComponent({
   name: 'IndexPage',
@@ -35,10 +36,11 @@ export default defineComponent({
     LPopup
   },
   data() {
-
+    const $q = useQuasar()
     return {
       zoom: 10,
-      coordinates: [50,50]
+      coordinates: [-33.5337529, -70.7247316],
+      mostraretiqueta: false
 
     }
   },
@@ -51,13 +53,18 @@ export default defineComponent({
 
     },
     getposition(position) {
-      this.$refs.marker1.leafletObject.openPopup()
+      this.mostraretiqueta = true
       this.coordinates = [position.coords.latitude,position.coords.longitude]
-    },
 
+    },
+    upPopUp(){
+      this.$refs.marker1.leafletObject.openPopup()
+    },
       onError(error) {
-      console.log('code: '    + error.code    + '\n' +
-              'message: ' + error.message + '\n');
+        this.$q.notify({
+          type: 'negative',
+          message: 'No se puede acceder a la geolocalización, activar GPS'
+        })
     }
   }
 })
